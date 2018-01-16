@@ -1,0 +1,6 @@
+-R src Mmx
+-I src
+
+
+src/ast.v
+src/binary.v
