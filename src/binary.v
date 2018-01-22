@@ -2,12 +2,12 @@ Require Import Bool List Arith Nat Coq.Arith.Div2.
 Import ListNotations.
 
 
-
 Fixpoint bit_n (l : list bool) : nat :=
   match l with
     | [] => 0
     | a :: tl => 2 * bit_n tl + Nat.b2n a
   end.
+
 
 
 Fixpoint n_bit (n : nat) (k : nat) : option (list bool) :=
@@ -22,94 +22,52 @@ Fixpoint n_bit (n : nat) (k : nat) : option (list bool) :=
                 end
     end.
 
-Compute pow 2 8.
-Check leb 2 3.
 
-    
-
-
-SearchAbout (_ mod _).
-
+(* ------------------------------- Auxiliary Lemma------------  Used later *)
 Lemma size_n_bit : forall (n k: nat) (l : list bool),
     n_bit n k = Some l -> length l = n.
 Proof.
-  induction n.
-  -intros k l.
-   induction k.
-   +intros.
-    inversion H.
-    reflexivity.
-   +simpl.
-    discriminate.
-  -intros k l.
-   simpl.
-   case_eq (n_bit n (Nat.div2 k)).  
-   +intros.
-    inversion H0.
-    assert (help1: forall (l' : list bool) (b : bool), length l' = n -> length(b :: l') = S n).
-    {
-      induction l'.
-      -intros b.
-       simpl.
-       intros.
-       rewrite H1.
-       reflexivity.
-      -intros b.
-       simpl.
-       intros.
-       rewrite H1.
-       reflexivity.
-    }    
-    apply help1.
-    specialize (IHn (Nat.div2 k)).
-    apply IHn.
-    exact H.
-   +intros.
-    discriminate.
+  induction n; intros k l.
+  (* case 0 *)
+  -assert (I : n_bit 0 k = Some l -> length l = 0).
+   { destruct k; simpl; intro H.
+     -inversion H. reflexivity.
+     -discriminate.
+   } assumption.
+  -(* case S n) *)
+    assert(II : n_bit (S n) k = Some l -> length l = S n).
+    { simpl. destruct (n_bit n (Nat.div2 k)) eqn:H1; intros; try (discriminate).
+      inversion H. simpl. apply Nat.succ_inj_wd. eapply IHn. exact H1.
+    } assumption.
 Qed.
-     
 
-(* first proof that we need on binary representation *)
+
+
+
+
+
+(* ---------------------- Theorem that state that fonctions are inverse --------------------*)
 Theorem n_bit_n : forall (l : list bool) (n k : nat),
-                    n_bit n k = Some l -> bit_n l = k.
+    n_bit n k = Some l -> bit_n l = k.
 Proof.
-  assert (I : forall (l : list bool) (n k : nat), n_bit n k = Some l -> bit_n l = k).
-  {
-    intros l; induction l; intros n k.
-    simpl.
-    assert (I_1 : n_bit n k = Some [] -> bit_n [] = k).
-    {
-      induction k.
-      - reflexivity.
-       (* the hypothesis is false so we will need to find how to demonstrate this *)
-      - assert (I_1_1 : n_bit n (S k) = Some [] -> bit_n [] = S k).
-       {
-         induction n.
-         - discriminate.
-         - unfold n_bit; fold n_bit.
-           destruct (n_bit n (Nat.div2 (S k))); discriminate.
-       }
-       exact I_1_1.
-    }
-    exact I_1.
-    assert (I_2 : n_bit n k = Some (a :: l) -> bit_n (a :: l) = k).
-    {
-      intros H.
-      simpl.
-      About Nat.div2_odd.
-      rewrite (Nat.div2_odd k).
-      simpl.
+  induction l; intros n k.
+  -assert (I : n_bit n k = Some [] -> bit_n [] = k).
+   {
+     destruct n; simpl.
+     -destruct k. reflexivity. discriminate.
+     -destruct (n_bit n (Nat.div2 k)); discriminate.
+   } assumption.
+  -assert (II : n_bit n k = Some (a :: l) -> bit_n (a :: l) = k).
+   {
+     intros H. rewrite (Nat.div2_odd k). simpl.     
       destruct n; simpl in H.
       - destruct k; discriminate.
       - destruct (n_bit n (Nat.div2 k)) eqn:Hl; try discriminate.
         inversion H; subst.
         erewrite IHl; eauto.
-    }
-    assumption.
-  }
-  assumption.
+   } assumption.
 Qed.
-
+  
 
 (* second proof *)
 Theorem bit_n_bit : forall (l : list bool) (n : nat),

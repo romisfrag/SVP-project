@@ -4,3 +4,4 @@
 
 src/ast.v
 src/binary.v
+src/association_list.v

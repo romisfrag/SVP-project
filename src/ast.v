@@ -43,18 +43,26 @@ Admitted.
 
 
 (* operand definitions *)
+Definition size := nat.
+
 Inductive operand :=
 | imm : nat -> operand
 | reg : nat -> operand.
 
-Inductive operands :=
-| unary : operand -> operands
-| binary : operand -> operand -> operands
-| ternary : operand -> operand -> operand -> operands.
+Definition operands := list (operand * size).
+
+(* here the nat is used for the size of a field *)
+Inductive elem_struct_op :=
+| Imm_s : size -> elem_struct_op
+| Reg_s : size -> elem_struct_op.
+
+Definition structure_op := list elem_struct_op.
+
 
 
 Record instr := mk_instr { instr_opcode : tag;
                            instr_operand : operands }.
+
 
 
 (* Binary instruction definitions *)
