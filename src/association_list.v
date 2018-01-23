@@ -67,11 +67,10 @@ Theorem lookup_lookdown : forall (n : nat) (t : tag) (s : structure_op),
 
 
 
+Lemma tag_to_nat_inv : forall (t : tag) (n : nat) (s : structure_op),
+    tag_to_nat t = Some n -> nat_to_tag_struct n = Some (t,s).
+Admitted.
+Lemma nat_to_tag_inv : forall (t : tag) (n : nat) (s : structure_op),
+    nat_to_tag_struct n = Some (t,s) -> tag_to_nat t = Some n.
+Admitted.
   
-
-  
-
-
-
-
-

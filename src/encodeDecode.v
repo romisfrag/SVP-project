@@ -6,15 +6,17 @@ Import ListNotations.
 
 
 (* ------------------------------- Encode --------------------------- *)
-
-Fixpoint encode_operandes_rec (o : operands) (res : list bool) : option (list bool) :=
+Print M.
+Fixpoint encode_operandes_rec (o : operands) (res : (list bool) * structure_op) : option ((list bool) * structure_op) :=
   match o with
   | [] => Some res
-  | (op,size) :: next => let! op_n := (match op with
-                                      | imm n => n_bit size n 
-                                      | reg n => n_bit size n
-                                      end) in
-                          encode_operandes_rec next (res ++ op_n)
+  | (op,size) :: next => let! result := (match op with
+                                         | imm n => let! lol := n_bit size n in Some (lol,Imm_s size)
+                                         | reg n => let! lol := n_bit size n in Some (lol, Reg_s size)
+                                              end) in
+                         let (op_n, cons) := result in
+                         let (res_a,res_b) := res in
+                         encode_operandes_rec next ((res_a ++ op_n),(res_b ++ [cons]))
   end.
 Definition encode_operandes (o : operands) : option (list bool) :=
   encode_operandes_rec o [].
