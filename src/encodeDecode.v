@@ -61,4 +61,16 @@ Fixpoint decode_operandes (op_binary : list bool) (s : structure_op) : operands 
   end.
 
 
+Definition decode (bi : binary_instruction) : option instr :=
+  let (tag_binary,next) := get_first_n_bit bi 8 in
+  let tag_nat := bit_n tag_binary in
+  let! res := nat_to_tag_struct tag_nat in
+  let (t,str) := res in 
+  let ops := decode_operandes next str in
+  Some (mk_instr t ops).
+  
 
+
+
+
+ 

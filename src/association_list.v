@@ -54,7 +54,7 @@ Qed.
 
 Definition tag_to_nat (t : tag) : option nat := lookup t encdec.
 
-Definition nat_to_tag (n : nat) : option (tag*structure_op) := lookdown n encdec.
+Definition nat_to_tag_struct (n : nat) : option (tag*structure_op) := lookdown n encdec.
 
 Theorem lookdown_lookup : forall (n : nat) (s : structure_op) (t : tag),
     lookdown n encdec = Some (t,s) -> lookup t encdec = Some n.
