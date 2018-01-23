@@ -6,7 +6,7 @@ Import ListNotations.
 
 
 (* ------------------------------- Encode --------------------------- *)
-Print M.
+
 Fixpoint encode_operandes_rec (o : operands) (res : (list bool) * structure_op) : option ((list bool) * structure_op) :=
   match o with
   | [] => Some res
@@ -18,15 +18,16 @@ Fixpoint encode_operandes_rec (o : operands) (res : (list bool) * structure_op) 
                          let (res_a,res_b) := res in
                          encode_operandes_rec next ((res_a ++ op_n),(res_b ++ [cons]))
   end.
-Definition encode_operandes (o : operands) : option (list bool) :=
-  encode_operandes_rec o [].
+Definition encode_operandes (o : operands) : option ((list bool) * structure_op) :=
+  encode_operandes_rec o ([],[]).
 
 
 Definition encode (i : instr) : option binary_instruction :=
   match i with
   | mk_instr t op => let! nat_tag := tag_to_nat t in
                      let! binary_tag := n_bit 8 nat_tag in 
-                     let! binary_op := encode_operandes op in
+                     let! binary_op_struc := encode_operandes op in
+                     let (binary_op,struc) := binary_op_struc in
                      Some (binary_tag ++ binary_op)
   end.
 
